@@ -1,0 +1,40 @@
+name: Build XPI
+
+on:
+  push:
+    branches: [ main, master ]   # 你想触发打包的分支
+  workflow_dispatch:             # 手动触发按钮
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install deps
+        run: pnpm install
+
+      - name: Build (skip tsc)
+        run: pnpm build-prod   # 只跑打包，不跑类型检查
+
+      - name: Pack XPI
+        run: |
+          cd builds/addon
+          zip -r ../../zotero-style.xpi *
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zotero-style
+          path: zotero-style.xpi
