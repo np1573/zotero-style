@@ -6,7 +6,14 @@ import LocalStorage from "./localStorage";
 const requests = new Requests()
 
 export function getPublicationTitle(item: Zotero.Item) {
-  return [item.getField("publicationTitle"), item.getField("proceedingsTitle")].find(i => i.trim().length > 0) || ""
+  // 优先检查期刊缩写，其次是刊名，最后是会议标题
+  const fieldsToTry = [
+    item.getField("journalAbbreviation"), 
+    item.getField("publicationTitle"), 
+    item.getField("proceedingsTitle")
+  ];
+
+  return fieldsToTry.find(i => i && i.trim().length > 0) || ""
 }
 
 /**
